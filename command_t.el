@@ -23,18 +23,23 @@
     result))
     
 (defun find-file-in-tag-files-dired (str)
-  (switch-to-buffer (get-buffer-create "*Choose A File*"))
-  (widen)
-  (kill-all-local-variables)
-  (setq buffer-read-only nil)
-  (setq default-directory "~/relevance/surety/trunk/")
-  (let ((files (apply 'call-process (append '("ls" nil t nil "-al") (string-matches-in-tag-files str)))))
-    (insert files)
-    (dired-mode "~/relevance/surety/trunk/")
-    (set (make-local-variable 'dired-subdir-alist)
-         (list (cons default-directory (point-min-marker))))))
+  "Find files matching string, a la TextMate's Command-T"
+  (interactive "s")
+  (let ((matches (string-matches-in-tag-files str)))
+    (if (not matches) (error "No matches"))    
+    (switch-to-buffer (get-buffer-create "*Choose A File*"))
+    (widen)
+    (kill-all-local-variables)
+    (setq buffer-read-only nil)
+    (setq default-directory "~/relevance/surety/trunk/")
+    (let ((files (apply 'call-process (append '("ls" nil t nil "-al") matches))))
+      (insert files)
+      (delete-backward-char 1)
+      (dired-mode "~/relevance/surety/trunk/")
+      (set (make-local-variable 'dired-subdir-alist)
+           (list (cons default-directory (point-min-marker)))))))
 
- 
-(find-file-in-tag-files-dired "a/m/bonds")
+;; (global-set-key "\M-t" 'find-file-in-tag-files-dired) 
+
 
 
