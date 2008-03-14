@@ -1,4 +1,4 @@
-;;;; This is a set of experiments on possible Emacs variants of TextMates' Command-T
+;;;; This is a set of experiments on possible Emacs variants of TextMate's Command-T
 
 ;; (string-matches "h.*t" '("hot" "post" "heat"))
 (defun string-matches (re list)
@@ -37,7 +37,7 @@
 (defun phoenix-relevance-re (string)
   (apply 'concat (phoenix-splice (split-string string "/" t) "[^/]*/[^/]*")))
 
-;; (phoenix-splice '(1 2 3) :foo)
+;; (phoenix-splice '(1 2 3) "+")
 (defun phoenix-splice (list splice)
   (let ((result nil))
     (dolist (item list)
@@ -49,27 +49,6 @@
 ;; current tags file. Is this a reasonable assumption?
 (defun phoenix-find-file-top-dir ()
   (file-name-directory tags-file-name))
-
-(defun find-file-in-tag-files-dired (str)
-  "Find files matching string, a la TextMate's Command-T"
-  (interactive "s")
-  (let ((matches (string-matches-in-tag-files str)))
-    (if (not matches) (error "No matches"))    
-    (switch-to-buffer (get-buffer-create "*Choose A File*"))
-    (setq buffer-read-only nil)
-    (widen)
-    (erase-buffer)
-    (kill-all-local-variables)
-    (setq default-directory (phoenix-find-file-top-dir))
-    (let* ((files (apply 'call-process (append '("ls" nil t nil "-al") matches)))
-           (ls-list (split-string (buffer-substring (point-min) (point-max)) "\n")))
-      (erase-buffer)
-     (dolist (item (phoenix-relevance-sort str ls-list))
-       (insert-string (concat item "\n")))
-      (dired-mode (phoenix-find-file-top-dir))
-      (set (make-local-variable 'dired-subdir-alist)
-           (list (cons default-directory (point-min-marker))))
-      (beginning-of-buffer))))
 
 ;; sort list by relevance to string
 ;; early match beats late match beats no match
